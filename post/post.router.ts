@@ -1,27 +1,32 @@
 import { Request, Router } from "express";
 import postController from "./post.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
-import multer, { FileFilterCallback } from "multer";
+import commonjsVariables from 'commonjs-variables-for-esmodules';
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./static/");
-  },
+const {
+  __dirname,
+  require
+} = commonjsVariables(import.meta);
 
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-
-const upload = multer({storage: storage});
+const multer  = require('multer')
+const upload = multer({ dest: 'uploads/' })
 
 const postRouter = Router();
 
 postRouter.get("/getAll", authMiddleware, postController.getPosts);
-postRouter.get("/getOne", authMiddleware, postController.getOnePost);
-postRouter.get("/getAll", authMiddleware, postController.getPosts);
-postRouter.post("/create", upload.array('files', 5), authMiddleware, postController.createPost);
-postRouter.post("/update", upload.array('files', 5), authMiddleware, postController.updatePost);
-postRouter.delete("/delete", authMiddleware, postController.deletePost);
+postRouter.get("/getOne/:id", authMiddleware, postController.getOnePost);
+postRouter.post(
+  "/create",
+  authMiddleware,
+  upload.array('media', 5),
+  postController.createPost
+);
+postRouter.put(
+  "/update/:id",
+  authMiddleware,
+  upload.array('media', 5),
+  postController.updatePost
+);
+postRouter.delete("/delete/:id", authMiddleware, postController.deletePost);
 
 export { postRouter };

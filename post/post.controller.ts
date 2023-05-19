@@ -43,10 +43,13 @@ class PostController {
         (file: IFile) => `/static/${file.originalname}`
       );
       fields.media = files;
-
+      fields.author = req.cookies.userId
+      
       const newPost = await postService.createPost(fields, req.cookies.userId);
+      console.log(newPost)
       res.status(201).json(newPost);
     } catch (e) {
+      console.log(e)
       next(e);
     }
   }
@@ -61,9 +64,10 @@ class PostController {
       if (files.length) {
         fields.media = files;
       }
-
+      
       const updatedPost = await postService.updatePost(req.params.id, fields);
-      res.status(204).json(updatedPost);
+      
+      res.status(200).json({updatedPost});
     } catch (e) {
       next(e);
     }

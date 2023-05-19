@@ -6,7 +6,7 @@ class UserController {
     try {
       const users = await userService.findAll();
 
-      return users;
+      res.status(200).json(users)
     } catch (e) {
         next(e)
     }
@@ -14,9 +14,9 @@ class UserController {
 
   async findOne(req: Request, res: Response, next: NextFunction) {
     try {
-      const users = await userService.findOne(req.params.id);
+      const user = await userService.findOne(req.params.id);
 
-      return users;
+      res.status(200).json(user)
     } catch (e) {
         next(e)
     }

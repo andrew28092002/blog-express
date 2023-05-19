@@ -5,32 +5,30 @@ import postModel from "./entities/post.model.js";
 import { ApiError } from "../exceptions/api.error.js";
 
 class PostService {
-  async getPosts(pageNumber: string, searchQuery: string) {
+  async getPosts(pageNumber='1', searchQuery: string) {
     const LIMIT = 20;
     const startIndex = (Number(pageNumber) - 1) * LIMIT;
     const title = new RegExp(searchQuery, "i");
     let posts, total;
 
-    if (searchQuery !== "none") {
+    if (searchQuery) {
       total = await postModel.countDocuments({
-        $or: [{ title }]
+        $or: [{ title }],
       });
 
-      posts = await postModel.find({
-        $or: [{ title }],
-      })
+      posts = await postModel
+        .find({
+          $or: [{ title }],
+        })
         .sort({ _id: -1 })
         .limit(LIMIT)
         .skip(startIndex);
     } else {
-
       total = await postModel.countDocuments({});
-      posts = await postModel.find()
-        .sort({ _id: -1 })
-        .limit(LIMIT)
-        .skip(startIndex);
-    }
 
+      posts = await postModel.find().limit(LIMIT).skip(startIndex);
+    }
+    
     return {
       posts,
       currentPage: Number(pageNumber),
@@ -54,23 +52,20 @@ class PostService {
   }
 
   async updatePost(id: string, fields: UpdatePostDto) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw ApiError.BadRequest('Id not valid')
-    }
-
+    
     const updatedPost = await postModel.findByIdAndUpdate(id, fields, {
       new: true,
     });
-
+    
     return updatedPost;
   }
 
   async deletePost(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw ApiError.BadRequest("Id not valid");
-    }
+    const deletedPost = await postModel.findByIdAndDelete(id, {
+      new: true,
+    });
 
-    await postModel.findByIdAndDelete(id);
+    return deletedPost
   }
 }
 
