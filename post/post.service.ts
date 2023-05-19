@@ -5,7 +5,7 @@ import postModel from "./entities/post.model.js";
 import { ApiError } from "../exceptions/api.error.js";
 
 class PostService {
-  async getPosts(pageNumber=1, searchQuery: string) {
+  async getPosts(pageNumber='1', searchQuery: string) {
     const LIMIT = 20;
     const startIndex = (Number(pageNumber) - 1) * LIMIT;
     const title = new RegExp(searchQuery, "i");
