@@ -1,16 +1,78 @@
 import jwt from "jsonwebtoken";
-import tokenModel from "./entities/token.model.js";
 import { CreateUserDto } from "./dto/createUser.dto.js";
 import { AuthUserDto } from "./dto/authUser.dto.js";
+import userModel from "../user/entities/user.model.js";
+import * as bcrypt from "bcryptjs";
+import userService from "../user/user.service.js";
+
+interface JwtPayload {
+  id: string;
+  email: string;
+}
+
+interface ITokens {
+  accessToken: string;
+  refreshToken: string;
+}
 
 class AuthService {
-  async signUp(createUserDto: CreateUserDto) {}
+  async signUp(createUserDto: CreateUserDto) {
+    const existingUser = await userService.findByUserEmail(createUserDto.email);
 
-  hashData(data: string) {}
+    if (existingUser) {
+      throw new Error("User already exist");
+    }
 
-  async signIn(authUserDto: AuthUserDto) {}
+    if (createUserDto.confirmedPassword !== createUserDto.password) {
+      throw new Error("Passwords do not match");
+    }
 
-  generateTokens(payload: { id: string; email: string }) {
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 12)
+
+    const newUser = await userModel.create({
+      name: createUserDto.name,
+      email: createUserDto.email,
+      password: hashedPassword,
+    });
+
+    const tokens = this.generateTokens({
+      email: newUser.email,
+      id: newUser.id,
+    });
+
+    newUser.refreshToken = tokens.refreshToken
+
+    await newUser.save()
+
+    return tokens
+  }
+
+  async signIn(authUserDto: AuthUserDto) {
+    const existingUser = await userService.findByUserEmail(authUserDto.email)
+
+    if (!existingUser){
+      throw new Error('User not found')
+    }
+
+    const isTruePassword = await bcrypt.compare(authUserDto.password, existingUser.password)
+
+    if (!isTruePassword){
+      throw new Error('Incorrect Password')
+    }
+
+    const tokens = this.generateTokens({
+      email: existingUser.email,
+      id: existingUser.id
+    })
+
+    existingUser.refreshToken = tokens.refreshToken
+
+    await existingUser.save()
+
+    return tokens
+  }
+
+  generateTokens(payload: JwtPayload): ITokens {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, {
       expiresIn: "10s",
     });
@@ -25,16 +87,60 @@ class AuthService {
     };
   }
 
-  async logout(userId: string) {}
+  async logout(token: string): Promise<undefined> {
+    try {
+      if (!token) {
+        throw new Error("Token not found");
+      }
 
-  async refreshTokens(userId: string, refreshToken: string) {}
+      const userData = this.validateAccessToken(
+        token.split(" ")[1]
+      ) as JwtPayload;
+
+      if (!userData) {
+        throw new Error("Something went wrong");
+      }
+
+      const userFromDB = await userModel.findById(userData.id);
+      userFromDB!.refreshToken = "";
+      userFromDB!.save();
+
+      return;
+    } catch (e) {
+      if (e instanceof Error) {
+        console.log(e.message);
+      }
+    }
+  }
+
+  async refreshTokens(refreshToken: string) {
+    if (!refreshToken){
+      throw new Error('Token not found')
+    }
+
+    const token = refreshToken.split(' ')[1]
+
+    const userData = this.validateRefreshToken(token) as JwtPayload
+    const user = await userModel.findById(userData.id)
+    const newTokens = this.generateTokens({
+      email: user!.email,
+      id: user!.id
+    })
+
+    user!.refreshToken = newTokens.refreshToken
+    await user!.save()
+
+    return newTokens
+  }
 
   validateAccessToken(accessToken: string) {
     try {
       const userData = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET!);
       return userData;
     } catch (e) {
-      return null;
+      if (e instanceof Error) {
+        console.log(e.message);
+      }
     }
   }
 
@@ -46,7 +152,9 @@ class AuthService {
       );
       return userData;
     } catch (e) {
-      return null;
+      if (e instanceof Error) {
+        console.log(e.message);
+      }
     }
   }
 }

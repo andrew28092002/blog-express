@@ -1,13 +1,20 @@
-import express, { Express } from "express";
+import express, { Express, Request } from "express";
 import dotenv from "dotenv";
 import { json } from "body-parser";
 import mongoose, { ConnectOptions } from "mongoose";
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
 
 dotenv.config();
 
+export interface CustomRequest<T> extends Request {
+  body: T
+}
+
 const app: Express = express();
 app.use(json());
-// app.use(cors())
+app.use(cookieParser())
+app.use(cors())
 const PORT = process.env.PORT;
 
 const startServer = async () => {
