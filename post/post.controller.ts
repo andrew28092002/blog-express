@@ -1,0 +1,82 @@
+import { Request, Response } from "express";
+import postService from "./post.service.js";
+
+interface IFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  buffer: Buffer;
+  size: number;
+}
+
+class PostController {
+  async getPosts(req: Request, res: Response) {
+    try {
+      const { page, searchQuery } = req.query;
+      const data = await postService.getPosts(
+        page as string,
+        searchQuery as string
+      );
+
+      res.status(200).json(data);
+    } catch (e) {
+      throw new Error("Error in get posts");
+    }
+  }
+
+  async getOnePost(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const post = await postService.getOnePost(id);
+
+      res.status(200).json(post);
+    } catch (e) {
+      throw new Error("Error in get posts");
+    }
+  }
+
+  async createPost(req: Request, res: Response) {
+    try {
+      const fields = { ...req.body };
+      const files = (req.files as IFile[]).map(
+        (file: IFile) => `/static/${file.originalname}`
+      );
+      fields.media = files;
+
+      const newPost = await postService.createPost(fields, req.cookies.userId);
+      res.status(201).json(newPost);
+    } catch (e) {
+      throw new Error("Error in get posts");
+    }
+  }
+
+  async updatePost(req: Request, res: Response) {
+    try {
+      const fields = { ...req.body };
+      const files = (req.files as IFile[]).map(
+        (file: IFile) => `/static/${file.originalname}`
+      );
+      
+      if (files.length){
+        fields.media = files
+      }
+
+      const updatedPost = await postService.updatePost(req.params.id, fields);
+      res.status(204).json(updatedPost);
+    } catch (e) {
+      throw new Error("Error in get posts");
+    }
+  }
+
+  async deletePost(req: Request, res: Response) {
+    try {
+      await postService.deletePost(req.params.id);
+      res.status(204).json({ message: "delete" });
+    } catch (e) {
+      throw new Error("Error in get posts");
+    }
+  }
+}
+
+export default new PostController();
