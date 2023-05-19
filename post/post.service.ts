@@ -5,12 +5,12 @@ import postModel from "./entities/post.model.js";
 import { ApiError } from "../exceptions/api.error.js";
 
 class PostService {
-  async getPosts(pageNumber='1', searchQuery: string) {
+  async getPosts(pageNumber=1, searchQuery: string) {
     const LIMIT = 20;
     const startIndex = (Number(pageNumber) - 1) * LIMIT;
     const title = new RegExp(searchQuery, "i");
     let posts, total;
-
+  
     if (searchQuery) {
       total = await postModel.countDocuments({
         $or: [{ title }],
@@ -18,9 +18,8 @@ class PostService {
 
       posts = await postModel
         .find({
-          $or: [{ title }],
+          message: title,
         })
-        .sort({ _id: -1 })
         .limit(LIMIT)
         .skip(startIndex);
     } else {

@@ -27,8 +27,8 @@ class AuthService {
     if (createUserDto.confirmedPassword !== createUserDto.password) {
       throw ApiError.BadRequest("Passwords do not match");
     }
-    
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 12)
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 12);
 
     const newUser = await userModel.create({
       name: createUserDto.name,
@@ -41,36 +41,39 @@ class AuthService {
       id: newUser.id,
     });
 
-    newUser.refreshToken = tokens.refreshToken
+    newUser.refreshToken = tokens.refreshToken;
 
-    await newUser.save()
+    await newUser.save();
 
-    return tokens
+    return tokens;
   }
 
   async signIn(authUserDto: AuthUserDto) {
-    const existingUser = await userService.findByUserEmail(authUserDto.email)
+    const existingUser = await userService.findByUserEmail(authUserDto.email);
 
-    if (!existingUser){
-      throw ApiError.NotFound('User not found')
+    if (!existingUser) {
+      throw ApiError.NotFound("User not found");
     }
 
-    const isTruePassword = await bcrypt.compare(authUserDto.password, existingUser.password)
+    const isTruePassword = await bcrypt.compare(
+      authUserDto.password,
+      existingUser.password
+    );
 
-    if (!isTruePassword){
-      throw ApiError.BadRequest('Incorrect Password')
+    if (!isTruePassword) {
+      throw ApiError.BadRequest("Incorrect Password");
     }
 
     const tokens = this.generateTokens({
       email: existingUser.email,
-      id: existingUser.id
-    })
+      id: existingUser.id,
+    });
 
-    existingUser.refreshToken = tokens.refreshToken
+    existingUser.refreshToken = tokens.refreshToken;
 
-    await existingUser.save()
+    await existingUser.save();
 
-    return tokens
+    return tokens;
   }
 
   generateTokens(payload: JwtPayload): ITokens {
@@ -88,10 +91,12 @@ class AuthService {
     };
   }
 
-  async logout(userId: string): Promise<undefined> {
+  async logout(token: string): Promise<undefined> {
     try {
-      const userFromDB = await userModel.findById(userId);
-      
+      const data = this.validateRefreshToken(token) as JwtPayload;
+
+      const userFromDB = await userModel.findById(data.id);
+
       userFromDB!.refreshToken = "";
       userFromDB!.save();
 
@@ -103,25 +108,20 @@ class AuthService {
     }
   }
 
-  async refreshTokens(refreshToken: string) {
-    if (!refreshToken){
-      throw ApiError.NotFound('Token not found')
-    }
+  async refreshTokens(token: string) {
+    const data = this.validateRefreshToken(token) as JwtPayload;
 
-    const token = refreshToken.split(' ')[1]
-  
-    const userData = this.validateAccessToken(token) as JwtPayload
-    console.log(userData)
-    const user = await userModel.findById(userData.id)
+    const userFromDB = await userModel.findById(data.id);
+
     const newTokens = this.generateTokens({
-      email: user!.email,
-      id: user!.id
-    })
+      email: userFromDB!.email,
+      id: userFromDB!.id,
+    });
 
-    user!.refreshToken = newTokens.refreshToken
-    await user!.save()
+    userFromDB!.refreshToken = newTokens.refreshToken;
+    await userFromDB!.save();
 
-    return newTokens
+    return newTokens;
   }
 
   validateAccessToken(accessToken: string) {

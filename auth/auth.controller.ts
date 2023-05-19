@@ -13,6 +13,11 @@ export class AuthController {
     try {
       const tokens = await authService.signUp(req.body);
 
+      res.cookie("refreshToken", tokens.refreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+      });
+
       res.status(200).json(tokens);
     } catch (e) {
       next(e);
@@ -27,6 +32,10 @@ export class AuthController {
     try {
       const tokens = await authService.signIn(req.body);
 
+      res.cookie("refreshToken", tokens.refreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+      });
       res.status(200).json(tokens);
     } catch (e) {
       next(e);
@@ -35,9 +44,9 @@ export class AuthController {
 
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
-      await authService.logout(req.cookies.userId as string);
+      await authService.logout(req.cookies.refreshToken as string);
 
-      res.status(200).json({message: 'Success logout'});
+      res.status(200).json({ message: "Success logout" });
     } catch (e) {
       next(e);
     }
@@ -45,9 +54,7 @@ export class AuthController {
 
   async refreshTokens(req: Request, res: Response, next: NextFunction) {
     try {
-      const tokens = await authService.refreshTokens(
-        req.headers.authorization!
-      );
+      const tokens = await authService.refreshTokens(req.cookies.refreshToken);
 
       res.status(200).json(tokens);
     } catch (e) {
