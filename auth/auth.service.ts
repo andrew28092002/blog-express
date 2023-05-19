@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { CreateUserDto } from "./dto/createUser.dto.js";
 import { AuthUserDto } from "./dto/authUser.dto.js";
 import userModel from "../user/entities/user.model.js";
-import * as bcrypt from "bcryptjs";
+import bcrypt from "bcryptjs";
 import userService from "../user/user.service.js";
 import { ApiError } from "../exceptions/api.error.js";
 
@@ -27,7 +27,7 @@ class AuthService {
     if (createUserDto.confirmedPassword !== createUserDto.password) {
       throw ApiError.BadRequest("Passwords do not match");
     }
-
+    
     const hashedPassword = await bcrypt.hash(createUserDto.password, 12)
 
     const newUser = await userModel.create({
@@ -75,7 +75,7 @@ class AuthService {
 
   generateTokens(payload: JwtPayload): ITokens {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, {
-      expiresIn: "10s",
+      expiresIn: "15m",
     });
 
     const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, {
@@ -88,21 +88,10 @@ class AuthService {
     };
   }
 
-  async logout(token: string): Promise<undefined> {
+  async logout(userId: string): Promise<undefined> {
     try {
-      if (!token) {
-        throw ApiError.NotFound("Token not found");
-      }
-
-      const userData = this.validateAccessToken(
-        token.split(" ")[1]
-      ) as JwtPayload;
-
-      if (!userData) {
-        throw ApiError.BadRequest("Something went wrong");
-      }
-
-      const userFromDB = await userModel.findById(userData.id);
+      const userFromDB = await userModel.findById(userId);
+      
       userFromDB!.refreshToken = "";
       userFromDB!.save();
 
@@ -120,8 +109,9 @@ class AuthService {
     }
 
     const token = refreshToken.split(' ')[1]
-
-    const userData = this.validateRefreshToken(token) as JwtPayload
+  
+    const userData = this.validateAccessToken(token) as JwtPayload
+    console.log(userData)
     const user = await userModel.findById(userData.id)
     const newTokens = this.generateTokens({
       email: user!.email,
@@ -137,6 +127,7 @@ class AuthService {
   validateAccessToken(accessToken: string) {
     try {
       const userData = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET!);
+
       return userData;
     } catch (e) {
       if (e instanceof Error) {

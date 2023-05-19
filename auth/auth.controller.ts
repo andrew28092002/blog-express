@@ -35,9 +35,9 @@ export class AuthController {
 
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
-      await authService.logout(req.headers.authorization as string);
+      await authService.logout(req.cookies.userId as string);
 
-      res.status(200);
+      res.status(200).json({message: 'Success logout'});
     } catch (e) {
       next(e);
     }

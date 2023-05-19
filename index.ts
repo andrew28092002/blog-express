@@ -26,7 +26,7 @@ app.use("/user", userRouter);
 app.use('/post', postRouter)
 app.use(errorMiddleware)
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT; 
 
 const startServer = async () => {
   try {
