@@ -24,14 +24,6 @@ class UserService{
     
         return currentUser;
       }
-    
-      async remove(id: string) {
-        const deletedUser = await userModel.findByIdAndDelete(id, {
-          new: true,
-        });
-    
-        return deletedUser!.id;
-      }
 }
 
 export default new UserService()

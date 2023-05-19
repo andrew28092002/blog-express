@@ -4,6 +4,7 @@ import { AuthUserDto } from "./dto/authUser.dto.js";
 import userModel from "../user/entities/user.model.js";
 import * as bcrypt from "bcryptjs";
 import userService from "../user/user.service.js";
+import { ApiError } from "../exceptions/api.error.js";
 
 interface JwtPayload {
   id: string;
@@ -20,11 +21,11 @@ class AuthService {
     const existingUser = await userService.findByUserEmail(createUserDto.email);
 
     if (existingUser) {
-      throw new Error("User already exist");
+      throw ApiError.BadRequest("User already exist");
     }
 
     if (createUserDto.confirmedPassword !== createUserDto.password) {
-      throw new Error("Passwords do not match");
+      throw ApiError.BadRequest("Passwords do not match");
     }
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 12)
@@ -51,13 +52,13 @@ class AuthService {
     const existingUser = await userService.findByUserEmail(authUserDto.email)
 
     if (!existingUser){
-      throw new Error('User not found')
+      throw ApiError.NotFound('User not found')
     }
 
     const isTruePassword = await bcrypt.compare(authUserDto.password, existingUser.password)
 
     if (!isTruePassword){
-      throw new Error('Incorrect Password')
+      throw ApiError.BadRequest('Incorrect Password')
     }
 
     const tokens = this.generateTokens({
@@ -90,7 +91,7 @@ class AuthService {
   async logout(token: string): Promise<undefined> {
     try {
       if (!token) {
-        throw new Error("Token not found");
+        throw ApiError.NotFound("Token not found");
       }
 
       const userData = this.validateAccessToken(
@@ -98,7 +99,7 @@ class AuthService {
       ) as JwtPayload;
 
       if (!userData) {
-        throw new Error("Something went wrong");
+        throw ApiError.BadRequest("Something went wrong");
       }
 
       const userFromDB = await userModel.findById(userData.id);
@@ -115,7 +116,7 @@ class AuthService {
 
   async refreshTokens(refreshToken: string) {
     if (!refreshToken){
-      throw new Error('Token not found')
+      throw ApiError.NotFound('Token not found')
     }
 
     const token = refreshToken.split(' ')[1]

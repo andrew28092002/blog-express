@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { CreatePostDto } from "./dto/createPost.dto.js";
 import { UpdatePostDto } from "./dto/updatePost.dto.js";
 import postModel from "./entities/post.model.js";
+import { ApiError } from "../exceptions/api.error.js";
 
 class PostService {
   async getPosts(pageNumber: string, searchQuery: string) {
@@ -54,7 +55,7 @@ class PostService {
 
   async updatePost(id: string, fields: UpdatePostDto) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error("No posts with current id");
+      throw ApiError.BadRequest('Id not valid')
     }
 
     const updatedPost = await postModel.findByIdAndUpdate(id, fields, {
@@ -66,7 +67,7 @@ class PostService {
 
   async deletePost(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error("No posts with current id");
+      throw ApiError.BadRequest("Id not valid");
     }
 
     await postModel.findByIdAndDelete(id);

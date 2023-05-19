@@ -1,12 +1,15 @@
 import express, { Express, Request } from "express";
 import dotenv from "dotenv";
-import { json } from "body-parser";
+import pkg from "body-parser";
 import mongoose, { ConnectOptions } from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { authRouter } from "./auth/auth.router.js";
 import { userRouter } from "./user/user.router.js";
 import { postRouter } from "./post/post.router.js";
+import { errorMiddleware } from "./middleware/error.middleware.js";
+
+const { json } = pkg
 
 dotenv.config();
 
@@ -21,6 +24,7 @@ app.use(cors());
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use('/post', postRouter)
+app.use(errorMiddleware)
 
 const PORT = process.env.PORT;
 
@@ -29,7 +33,6 @@ const startServer = async () => {
     await mongoose.connect(process.env.CONNECTION_URL!, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useFindAndModify: false,
     } as ConnectOptions);
 
     app.listen(PORT, () => console.log("SERVER HAS STARTED ON PORT: " + PORT));

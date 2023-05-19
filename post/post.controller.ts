@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import postService from "./post.service.js";
 
 interface IFile {
@@ -11,7 +11,7 @@ interface IFile {
 }
 
 class PostController {
-  async getPosts(req: Request, res: Response) {
+  async getPosts(req: Request, res: Response, next: NextFunction) {
     try {
       const { page, searchQuery } = req.query;
       const data = await postService.getPosts(
@@ -21,22 +21,22 @@ class PostController {
 
       res.status(200).json(data);
     } catch (e) {
-      throw new Error("Error in get posts");
+      next(e);
     }
   }
 
-  async getOnePost(req: Request, res: Response) {
+  async getOnePost(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
       const post = await postService.getOnePost(id);
 
       res.status(200).json(post);
     } catch (e) {
-      throw new Error("Error in get posts");
+      next(e);
     }
   }
 
-  async createPost(req: Request, res: Response) {
+  async createPost(req: Request, res: Response, next: NextFunction) {
     try {
       const fields = { ...req.body };
       const files = (req.files as IFile[]).map(
@@ -47,34 +47,34 @@ class PostController {
       const newPost = await postService.createPost(fields, req.cookies.userId);
       res.status(201).json(newPost);
     } catch (e) {
-      throw new Error("Error in get posts");
+      next(e);
     }
   }
 
-  async updatePost(req: Request, res: Response) {
+  async updatePost(req: Request, res: Response, next: NextFunction) {
     try {
       const fields = { ...req.body };
       const files = (req.files as IFile[]).map(
         (file: IFile) => `/static/${file.originalname}`
       );
-      
-      if (files.length){
-        fields.media = files
+
+      if (files.length) {
+        fields.media = files;
       }
 
       const updatedPost = await postService.updatePost(req.params.id, fields);
       res.status(204).json(updatedPost);
     } catch (e) {
-      throw new Error("Error in get posts");
+      next(e);
     }
   }
 
-  async deletePost(req: Request, res: Response) {
+  async deletePost(req: Request, res: Response, next: NextFunction) {
     try {
       await postService.deletePost(req.params.id);
       res.status(204).json({ message: "delete" });
     } catch (e) {
-      throw new Error("Error in get posts");
+      next(e);
     }
   }
 }
