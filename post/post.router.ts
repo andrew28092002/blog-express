@@ -15,13 +15,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage: storage});
 
-const userRouter = Router();
+const postRouter = Router();
 
-userRouter.get("/getAll", authMiddleware, postController.getPosts);
-userRouter.get("/getOne", authMiddleware, postController.getOnePost);
-userRouter.get("/getAll", authMiddleware, postController.getPosts);
-userRouter.post("/create", upload.array('files', 5), authMiddleware, postController.createPost);
-userRouter.post("/update", upload.array('files', 5), authMiddleware, postController.updatePost);
-userRouter.delete("/delete", authMiddleware, postController.deletePost);
+postRouter.get("/getAll", authMiddleware, postController.getPosts);
+postRouter.get("/getOne", authMiddleware, postController.getOnePost);
+postRouter.get("/getAll", authMiddleware, postController.getPosts);
+postRouter.post("/create", upload.array('files', 5), authMiddleware, postController.createPost);
+postRouter.post("/update", upload.array('files', 5), authMiddleware, postController.updatePost);
+postRouter.delete("/delete", authMiddleware, postController.deletePost);
 
-export { userRouter };
+export { postRouter };
