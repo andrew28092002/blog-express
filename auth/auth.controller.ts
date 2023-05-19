@@ -29,3 +29,5 @@ export class AuthController {
     res.status(200).json(tokens);
   }
 }
+
+export default new AuthController()
