@@ -70,24 +70,32 @@
         "summary": "User's registration ",
         "parameters": [
           {
-            "name": "name",
+            "name": "user",
             "in": "body",
-            "example": "Andrew123"
-          },
-          {
-            "name": "email",
-            "in": "body",
-            "example": "andrew123@gmail.com"
-          },
-          {
-            "name": "password",
-            "in": "body",
-            "example": "qwerty123"
-          },
-          {
-            "name": "confirmedPassword",
-            "in": "body",
-            "example": "qwerty123"
+            "schema": {
+              "type": "object",
+              "required": ["name", "password", "email", "confirmedPassword"],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "confirmedPassword": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "name": "andrew12345",
+              "email": "andrew12345@gmail.com",
+              "password": "123123",
+              "confirmedPassword": "123123"
+            }
           }
         ],
         "responses": {
@@ -106,14 +114,24 @@
         "summary": "User's authentication ",
         "parameters": [
           {
-            "name": "email",
+            "name": "user",
             "in": "body",
-            "example": "andrew123@gmail.com"
-          },
-          {
-            "name": "password",
-            "in": "body",
-            "example": "qwerty123"
+            "schema": {
+              "type": "object",
+              "required": ["password", "email"],
+              "properties": {
+                "password": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "email": "andrew12345@gmail.com",
+              "password": "123123"
+            }
           }
         ],
         "responses": {
@@ -179,12 +197,27 @@
         "summary": "Creating post",
         "parameters": [
           {
-            "name": "media",
-            "in": "body"
-          },
-          {
-            "name": "message",
-            "in": "body"
+            "name": "user",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": ["author", "message"],
+              "properties": {
+                "author": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "media": {
+                  "type": "array"
+                }
+              }
+            },
+            "example": {
+              "author": "64677c50e6d417284a1b3f2b",
+              "message": "It is my first post!"
+            }
           }
         ],
         "responses": {
@@ -239,16 +272,22 @@
         "summary": "Creating post",
         "parameters": [
           {
-            "name": "id",
-            "in": "path"
-          },
-          {
-            "name": "message",
-            "in": "body"
-          },
-          {
-            "name": "media",
-            "in": "body"
+            "name": "user",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "media": {
+                  "type": "array"
+                }
+              }
+            },
+            "example": {
+              "message": "It is my second post"
+            }
           }
         ],
         "responses": {
