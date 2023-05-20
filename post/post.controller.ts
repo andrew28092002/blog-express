@@ -46,7 +46,7 @@ class PostController {
       fields.author = req.cookies.userId
       
       const newPost = await postService.createPost(fields, req.cookies.userId);
-      console.log(newPost)
+      
       res.status(201).json(newPost);
     } catch (e) {
       console.log(e)

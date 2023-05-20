@@ -239,7 +239,7 @@
       }
     },
     "/post/update/{id}": {
-      "post": {
+      "put": {
         "tags": ["Post"],
         "summary": "Creating post",
         "parameters": [
