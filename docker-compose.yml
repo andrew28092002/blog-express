@@ -1,0 +1,14 @@
+version: '3.3'
+
+services:
+  server:
+    image: server-prod-c
+    container_name: server-prod-c
+    env_file:
+      - ./.env
+    build:
+      context: ./
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/usr/app

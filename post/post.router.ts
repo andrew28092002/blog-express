@@ -9,7 +9,7 @@ const {
 } = commonjsVariables(import.meta);
 
 const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
+const upload = multer({ dest: 'static/' })
 
 const postRouter = Router();
 
