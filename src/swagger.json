@@ -9,7 +9,6 @@
       "url": "https://opensource.org/licenses/MIT"
     }
   },
-  "host": "https://blog-express-production-cffd.up.railway.app",
   "basePath": "/",
   "tags": [
     {
