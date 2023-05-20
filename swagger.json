@@ -13,15 +13,15 @@
   "basePath": "/",
   "tags": [
     {
-      "name": "User",
+      "name": "user",
       "description": "API for users in the system"
     },
     {
-      "name": "Auth",
+      "name": "auth",
       "description": "API for authentication"
     },
     {
-      "name": "Post",
+      "name": "post",
       "description": "API for posts"
     }
   ],
@@ -29,9 +29,9 @@
   "consumes": ["application/json"],
   "produces": ["application/json"],
   "paths": {
-    "/user/getAll": {
+    "/user": {
       "get": {
-        "tags": ["User"],
+        "tags": ["user"],
         "summary": "Get all users in system",
         "responses": {
           "200": {
@@ -43,14 +43,15 @@
         }
       }
     },
-    "/user/getOne/{id}": {
+    "/user/{id}": {
       "get": {
-        "tags": ["User"],
+        "tags": ["user"],
         "summary": "Get one User by id",
         "parameters": [
           {
             "name": "id",
-            "in": "path"
+            "in": "path",
+            "example": "64677c50e6d417284a1b3f2b"
           }
         ],
         "responses": {
@@ -65,7 +66,7 @@
     },
     "/auth/signup": {
       "post": {
-        "tags": ["Auth"],
+        "tags": ["auth"],
         "summary": "User's registration ",
         "parameters": [
           {
@@ -101,7 +102,7 @@
     },
     "/auth/signin": {
       "post": {
-        "tags": ["Auth"],
+        "tags": ["auth"],
         "summary": "User's authentication ",
         "parameters": [
           {
@@ -127,7 +128,7 @@
     },
     "/auth/refresh": {
       "get": {
-        "tags": ["Auth"],
+        "tags": ["auth"],
         "summary": "Refresh tokens ",
         "responses": {
           "200": {
@@ -141,7 +142,7 @@
     },
     "/auth/logout": {
       "get": {
-        "tags": ["Auth"],
+        "tags": ["auth"],
         "summary": "Logout",
         "responses": {
           "200": {
@@ -150,9 +151,9 @@
         }
       }
     },
-    "/post/getAll": {
+    "/post": {
       "get": {
-        "tags": ["Post"],
+        "tags": ["post"],
         "summary": "Get all posts in system",
         "parameters": [
           {
@@ -172,16 +173,18 @@
             }
           }
         }
-      }
-    },
-    "/post/getOne/{id}": {
-      "get": {
-        "tags": ["Post"],
-        "summary": "Get one Post by id of post",
+      },
+      "post": {
+        "tags": ["post"],
+        "summary": "Creating post",
         "parameters": [
           {
-            "name": "id",
-            "in": "path"
+            "name": "media",
+            "in": "body"
+          },
+          {
+            "name": "message",
+            "in": "body"
           }
         ],
         "responses": {
@@ -194,9 +197,9 @@
         }
       }
     },
-    "/post/delete/{id}": {
+    "/post/{id}": {
       "delete": {
-        "tags": ["Post"],
+        "tags": ["post"],
         "summary": "Delete Post by id of post",
         "parameters": [
           {
@@ -212,20 +215,14 @@
             }
           }
         }
-      }
-    },
-    "/post/create": {
-      "post": {
-        "tags": ["Post"],
-        "summary": "Creating post",
+      },
+      "get": {
+        "tags": ["post"],
+        "summary": "Get one Post by id of post",
         "parameters": [
           {
-            "name": "media",
-            "in": "body"
-          },
-          {
-            "name": "message",
-            "in": "body"
+            "name": "id",
+            "in": "path"
           }
         ],
         "responses": {
@@ -236,11 +233,9 @@
             }
           }
         }
-      }
-    },
-    "/post/update/{id}": {
+      },
       "put": {
-        "tags": ["Post"],
+        "tags": ["post"],
         "summary": "Creating post",
         "parameters": [
           {
@@ -258,10 +253,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Post"
-            }
+            "description": "OK"
           }
         }
       }
@@ -291,7 +283,6 @@
       "$ref": "#/definitions/User"
     },
     "Tokens": {
-      "required": ["accessToken", "refreshToken"],
       "properties": {
         "accessToken": {
           "type": "string"

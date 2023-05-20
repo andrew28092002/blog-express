@@ -13,20 +13,20 @@ const upload = multer({ dest: 'static/' })
 
 const postRouter = Router();
 
-postRouter.get("/getAll", authMiddleware, postController.getPosts);
-postRouter.get("/getOne/:id", authMiddleware, postController.getOnePost);
+postRouter.get("/", authMiddleware, postController.getPosts);
+postRouter.get("/:id", authMiddleware, postController.getOnePost);
 postRouter.post(
-  "/create",
+  "/",
   authMiddleware,
   upload.array('media', 5),
   postController.createPost
 );
 postRouter.put(
-  "/update/:id",
+  "/:id",
   authMiddleware,
   upload.array('media', 5),
   postController.updatePost
 );
-postRouter.delete("/delete/:id", authMiddleware, postController.deletePost);
+postRouter.delete("/:id", authMiddleware, postController.deletePost);
 
 export { postRouter };

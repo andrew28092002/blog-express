@@ -7,13 +7,13 @@ class UserService{
         return newUser;
       }
     
-      async findAll() {
+      async getAll() {
         const allUsers = await userModel.find();
     
         return allUsers;
       }
     
-      async findOne(id: string) {
+      async getOne(id: string) {
         const currentUser = await userModel.findById(id);
     
         return currentUser;

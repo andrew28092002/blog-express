@@ -9,7 +9,7 @@ import { userRouter } from "./user/user.router.js";
 import { postRouter } from "./post/post.router.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "./swagger.json" assert {type: 'json'};
+import swaggerDocument from "../swagger.json" assert {type: 'json'};
 
 const { json } = pkg;
 

@@ -92,20 +92,14 @@ class AuthService {
   }
 
   async logout(token: string): Promise<undefined> {
-    try {
-      const data = this.validateRefreshToken(token) as JwtPayload;
+    const data = this.validateRefreshToken(token) as JwtPayload;
 
-      const userFromDB = await userModel.findById(data.id);
+    const userFromDB = await userModel.findById(data.id);
 
-      userFromDB!.refreshToken = "";
-      userFromDB!.save();
+    userFromDB!.refreshToken = "";
+    userFromDB!.save();
 
-      return;
-    } catch (e) {
-      if (e instanceof Error) {
-        console.log(e.message);
-      }
-    }
+    return;
   }
 
   async refreshTokens(token: string) {
@@ -125,29 +119,14 @@ class AuthService {
   }
 
   validateAccessToken(accessToken: string) {
-    try {
-      const userData = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET!);
+    const userData = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET!);
 
-      return userData;
-    } catch (e) {
-      if (e instanceof Error) {
-        console.log(e.message);
-      }
-    }
+    return userData;
   }
 
   validateRefreshToken(refreshToken: string) {
-    try {
-      const userData = jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_SECRET!
-      );
-      return userData;
-    } catch (e) {
-      if (e instanceof Error) {
-        console.log(e.message);
-      }
-    }
+    const userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!);
+    return userData;
   }
 }
 
