@@ -23,6 +23,10 @@ const app: Express = express();
 app.use(json());
 app.use(cookieParser());
 app.use(cors());
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Headers', '*')
+  next()
+})
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/post", postRouter);
