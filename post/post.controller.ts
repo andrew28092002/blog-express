@@ -65,7 +65,7 @@ class PostController {
         fields.media = files;
       }
       
-      const updatedPost = await postService.updatePost(req.params.id, fields);
+      const updatedPost = await postService.updatePost(req.params.id, fields, req.cookies.userId);
       
       res.status(200).json({updatedPost});
     } catch (e) {
@@ -75,7 +75,7 @@ class PostController {
 
   async deletePost(req: Request, res: Response, next: NextFunction) {
     try {
-      await postService.deletePost(req.params.id);
+      await postService.deletePost(req.params.id, req.cookies.userId);
       res.status(204).json({ message: "delete" });
     } catch (e) {
       next(e);

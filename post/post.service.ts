@@ -5,12 +5,12 @@ import postModel from "./entities/post.model.js";
 import { ApiError } from "../exceptions/api.error.js";
 
 class PostService {
-  async getPosts(pageNumber='1', searchQuery: string) {
+  async getPosts(pageNumber = "1", searchQuery: string) {
     const LIMIT = 20;
     const startIndex = (Number(pageNumber) - 1) * LIMIT;
     const title = new RegExp(searchQuery, "i");
     let posts, total;
-  
+
     if (searchQuery) {
       total = await postModel.countDocuments({
         $or: [{ title }],
@@ -27,7 +27,7 @@ class PostService {
 
       posts = await postModel.find().limit(LIMIT).skip(startIndex);
     }
-    
+
     return {
       posts,
       currentPage: Number(pageNumber),
@@ -50,21 +50,38 @@ class PostService {
     return newPost;
   }
 
-  async updatePost(id: string, fields: UpdatePostDto) {
-    
-    const updatedPost = await postModel.findByIdAndUpdate(id, fields, {
+  async updatePost(id: string, fields: UpdatePostDto, userId: string) {
+    const post = await postModel.findById(id);
+
+    if (!post) {
+      throw ApiError.NotFound("Post not found");
+    }
+
+    if (post.author !== userId) {
+      throw ApiError.BadRequest("You are not author");
+    }
+
+    await postModel.findByIdAndUpdate(id, fields, {
       new: true,
     });
-    
-    return updatedPost;
+
+    return post;
   }
 
-  async deletePost(id: string) {
-    const deletedPost = await postModel.findByIdAndDelete(id, {
-      new: true,
-    });
+  async deletePost(id: string, userId: string) {
+    const post = await postModel.findById(id);
 
-    return deletedPost
+    if (!post) {
+      throw ApiError.NotFound("Post not found");
+    }
+
+    if (post.author !== userId) {
+      throw ApiError.BadRequest("You are not author");
+    }
+
+    await postModel.findByIdAndDelete(id);
+
+    return post;
   }
 }
 
