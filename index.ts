@@ -8,8 +8,10 @@ import { authRouter } from "./auth/auth.router.js";
 import { userRouter } from "./user/user.router.js";
 import { postRouter } from "./post/post.router.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "./swagger.json" assert {type: 'json'};
 
-const { json } = pkg
+const { json } = pkg;
 
 dotenv.config();
 
@@ -23,10 +25,11 @@ app.use(cookieParser());
 app.use(cors());
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
-app.use('/post', postRouter)
-app.use(errorMiddleware)
+app.use("/post", postRouter);
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(errorMiddleware);
 
-const PORT = process.env.PORT; 
+const PORT = process.env.PORT;
 
 const startServer = async () => {
   try {

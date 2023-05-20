@@ -1,0 +1,329 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "REST API fro Blog",
+    "description": "Test project",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:8000",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "User",
+      "description": "API for users in the system"
+    },
+    {
+      "name": "Auth",
+      "description": "API for authentication"
+    },
+    {
+      "name": "Post",
+      "description": "API for posts"
+    }
+  ],
+  "schemes": ["http"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/user/getAll": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get all users in system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Users"
+            }
+          }
+        }
+      }
+    },
+    "/user/getOne/{id}": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get one User by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User's registration ",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "body",
+            "example": "Andrew123"
+          },
+          {
+            "name": "email",
+            "in": "body",
+            "example": "andrew123@gmail.com"
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "example": "qwerty123"
+          },
+          {
+            "name": "confirmedPassword",
+            "in": "body",
+            "example": "qwerty123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tokens"
+            }
+          }
+        }
+      }
+    },
+    "/auth/signin": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User's authentication ",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "body",
+            "example": "andrew123@gmail.com"
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "example": "qwerty123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tokens"
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Refresh tokens ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tokens"
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Logout",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/post/getAll": {
+      "get": {
+        "tags": ["Post"],
+        "summary": "Get all posts in system",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "name": "searchQuery",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Posts"
+            }
+          }
+        }
+      }
+    },
+    "/post/getOne/{id}": {
+      "get": {
+        "tags": ["Post"],
+        "summary": "Get one Post by id of post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          }
+        }
+      }
+    },
+    "/post/delete/{id}": {
+      "delete": {
+        "tags": ["Post"],
+        "summary": "Delete Post by id of post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          }
+        }
+      }
+    },
+    "/post/create": {
+      "post": {
+        "tags": ["Post"],
+        "summary": "Creating post",
+        "parameters": [
+          {
+            "name": "media",
+            "in": "body"
+          },
+          {
+            "name": "message",
+            "in": "body"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          }
+        }
+      }
+    },
+    "/post/update/{id}": {
+      "post": {
+        "tags": ["Post"],
+        "summary": "Creating post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "name": "message",
+            "in": "body"
+          },
+          {
+            "name": "media",
+            "in": "body"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "required": ["_id", "name", "email", "password"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "Users": {
+      "type": "array",
+      "$ref": "#/definitions/User"
+    },
+    "Tokens": {
+      "required": ["accessToken", "refreshToken"],
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    },
+    "Post": {
+      "required": ["_id", "name", "email", "password"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "author": {
+          "type": "string",
+          "$ref": "#/definitions/User"
+        },
+        "media": {
+          "type": "array",
+          "media": "string"
+        },
+        "createdAt": {
+          "type": "number"
+        }
+      }
+    },
+    "Posts": {
+      "type": "array",
+      "$ref": "#/definitions/Post"
+    }
+  }
+}
