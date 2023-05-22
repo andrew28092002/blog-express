@@ -1,20 +1,25 @@
 import supertest from "supertest";
 import { startApp } from "../../app.ts";
-import { dropCollections, dropMongo, setupMongo } from "../../utils/testUtils.ts";
+import { IMongoFunctions, dropCollections, setupMongo } from "../../utils/testUtils.ts";
 
 const app = startApp();
+let mongo: IMongoFunctions
 
 describe("auth", () => {
-  beforeAll(() => {
-    setupMongo();
+  beforeAll(async () => {
+    mongo = await setupMongo();
   });
 
-  afterEach(() => {
-    dropCollections()
+  afterEach(async () => {
+    if (mongo){
+      mongo.dropCollections()
+    }
   })
 
-  beforeAll(() => {
-    dropMongo();
+  beforeAll(async () => {
+    if (mongo){
+      mongo.dropMongo()
+    }
   });
   describe("POST auth/signup", () => {
     test("should return tokens", async () => {
@@ -56,7 +61,7 @@ describe("auth", () => {
         password: "123123",
         confirmedPassword: "123123",
       });
-      console.log(res.body);
+
       expect(res.status).toBe(400);
       expect(res.body).toHaveProperty("message");
       expect(res.body.message).toBe("User already exist");
