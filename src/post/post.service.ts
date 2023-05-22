@@ -1,8 +1,7 @@
-import mongoose from "mongoose";
-import { CreatePostDto } from "./dto/createPost.dto.js";
-import { UpdatePostDto } from "./dto/updatePost.dto.js";
-import postModel from "./entities/post.model.js";
-import { ApiError } from "../exceptions/api.error.js";
+import { CreatePostDto } from "./dto/createPost.dto.ts";
+import { UpdatePostDto } from "./dto/updatePost.dto.ts";
+import postModel from "./entities/post.model.ts";
+import { ApiError } from "../exceptions/api.error.ts";
 
 class PostService {
   async getPosts(pageNumber = "1", searchQuery: string) {

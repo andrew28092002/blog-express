@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import userService from "./user.service.js";
+import userService from "./user.service.ts";
 
 class UserController {
   async getAll(req: Request, res: Response, next: NextFunction) {

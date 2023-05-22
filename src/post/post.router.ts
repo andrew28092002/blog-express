@@ -1,20 +1,13 @@
-import { Request, Router } from "express";
-import postController from "./post.controller.js";
-import { authMiddleware } from "../middleware/auth.middleware.js";
-import commonjsVariables from 'commonjs-variables-for-esmodules';
-
-const {
-  __dirname,
-  require
-} = commonjsVariables(import.meta);
-
-const multer  = require('multer')
+import { Router } from "express";
+import postController from "./post.controller.ts";
+import { authMiddleware } from "../middleware/auth.middleware.ts";
+import multer from 'multer';
 const upload = multer({ dest: 'static/' })
 
 const postRouter = Router();
 
-postRouter.get("/", authMiddleware, postController.getPosts);
-postRouter.get("/:id", authMiddleware, postController.getOnePost);
+postRouter.get("/", postController.getPosts);
+postRouter.get("/:id", postController.getOnePost);
 postRouter.post(
   "/",
   authMiddleware,

@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { CustomRequest } from "../index.js";
-import authService from "./auth.service.js";
-import { CreateUserDto } from "./dto/createUser.dto.js";
-import { AuthUserDto } from "./dto/authUser.dto.js";
+import { CustomRequest } from "../app.ts";
+import authService from "./auth.service.ts";
+import { CreateUserDto } from "./dto/createUser.dto.ts";
+import { AuthUserDto } from "./dto/authUser.dto.ts";
 
 export class AuthController {
   async signUp(
@@ -57,6 +57,16 @@ export class AuthController {
       const tokens = await authService.refreshTokens(req.cookies.refreshToken);
 
       res.status(200).json(tokens);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      await authService.delete(req.cookies.refreshToken);
+
+      res.status(200).json({ message: 'Success deleted'});
     } catch (e) {
       next(e);
     }

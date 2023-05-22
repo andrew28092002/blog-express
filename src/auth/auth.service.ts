@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
-import { CreateUserDto } from "./dto/createUser.dto.js";
-import { AuthUserDto } from "./dto/authUser.dto.js";
-import userModel from "../user/entities/user.model.js";
+import { CreateUserDto } from "./dto/createUser.dto.ts";
+import { AuthUserDto } from "./dto/authUser.dto.ts";
+import userModel from "../user/entities/user.model.ts";
 import bcrypt from "bcryptjs";
-import userService from "../user/user.service.js";
-import { ApiError } from "../exceptions/api.error.js";
+import userService from "../user/user.service.ts";
+import { ApiError } from "../exceptions/api.error.ts";
 
 interface JwtPayload {
   id: string;
@@ -103,6 +103,11 @@ class AuthService {
   }
 
   async refreshTokens(token: string) {
+
+    if (!token){
+      throw ApiError.Unauthorized()
+    }
+
     const data = this.validateRefreshToken(token) as JwtPayload;
 
     const userFromDB = await userModel.findById(data.id);
@@ -116,6 +121,17 @@ class AuthService {
     await userFromDB!.save();
 
     return newTokens;
+  }
+
+  async delete(token: string) {
+
+    if (!token){
+      throw ApiError.Unauthorized()
+    }
+
+    const data = this.validateRefreshToken(token) as JwtPayload;
+
+    userService.delete(data.id)
   }
 
   validateAccessToken(accessToken: string) {

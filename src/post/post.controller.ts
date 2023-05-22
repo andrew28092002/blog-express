@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import postService from "./post.service.js";
+import postService from "./post.service.ts";
 
 interface IFile {
   fieldname: string;
@@ -47,7 +47,7 @@ class PostController {
       
       const newPost = await postService.createPost(fields, req.cookies.userId);
       
-      res.status(201).json(newPost);
+      res.status(200).json(newPost);
     } catch (e) {
       console.log(e)
       next(e);
@@ -76,7 +76,7 @@ class PostController {
   async deletePost(req: Request, res: Response, next: NextFunction) {
     try {
       await postService.deletePost(req.params.id, req.cookies.userId);
-      res.status(204).json({ message: "delete" });
+      res.status(200).json({ message: "delete" });
     } catch (e) {
       next(e);
     }
