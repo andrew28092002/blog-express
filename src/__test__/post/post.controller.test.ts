@@ -46,21 +46,22 @@ describe("Testing post controller", () => {
     });
   });
 
-  //   describe("DELETE post/{id}", () => {
-  //     test("should return 404; post not found", async () => {
-  //       await supertest(app).delete(`/post/asdf`).expect(404);
-  //     });
+    describe("DELETE post/{id}", () => {
+      test("should return 404; post not found", async () => {
 
-  //     test("should return 200; post deleted", async () => {
-  //       const post = await postModel.create({
-  //         message: "ad",
-  //         media: ["adsf"],
-  //         author: "asdf",
-  //       });
-  //       const res = await supertest(app).delete(`/post/${post.id}`);
+        await supertest(app).delete(`/post/asdf`).expect(404);
+      });
 
-  //       expect(res.status).toBe(200)
-  //       expect(res.body.message).toBe('delete')
-  //     }, 50000);
-  //   });
+      test("should return 200; post deleted", async () => {
+        const post = await postModel.create({
+          message: "ad",
+          media: ["adsf"],
+          author: "asdf",
+        });
+        const res = await supertest(app).delete(`/post/${post.id}`);
+
+        expect(res.status).toBe(200)
+        expect(res.body.message).toBe('delete')
+      }, 50000);
+    });
 });

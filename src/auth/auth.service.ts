@@ -91,21 +91,22 @@ class AuthService {
     };
   }
 
-  async logout(token: string): Promise<undefined> {
+  async logout(token: string): Promise<void> {
+    if (!token) {
+      throw ApiError.Unauthorized();
+    }
+
     const data = this.validateRefreshToken(token) as JwtPayload;
 
     const userFromDB = await userModel.findById(data.id);
 
     userFromDB!.refreshToken = "";
     userFromDB!.save();
-
-    return;
   }
 
   async refreshTokens(token: string) {
-
-    if (!token){
-      throw ApiError.Unauthorized()
+    if (!token) {
+      throw ApiError.Unauthorized();
     }
 
     const data = this.validateRefreshToken(token) as JwtPayload;
@@ -124,24 +125,32 @@ class AuthService {
   }
 
   async delete(token: string) {
-
-    if (!token){
-      throw ApiError.Unauthorized()
+    if (!token) {
+      throw ApiError.Unauthorized();
     }
 
     const data = this.validateRefreshToken(token) as JwtPayload;
 
-    userService.delete(data.id)
+    userService.delete(data.id);
   }
 
   validateAccessToken(accessToken: string) {
     const userData = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET!);
+
+    if (!userData){
+      throw ApiError.BadRequest('Token expired')
+    }
 
     return userData;
   }
 
   validateRefreshToken(refreshToken: string) {
     const userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!);
+
+    if (!userData){
+      throw ApiError.BadRequest('Token expired')
+    }
+
     return userData;
   }
 }

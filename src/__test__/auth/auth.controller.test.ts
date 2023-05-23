@@ -4,6 +4,7 @@ import { setupMongo } from "../../utils/testUtils.ts";
 import authController from "../../auth/auth.controller.ts";
 import userModel from "../../user/entities/user.model.ts";
 import authService from "../../auth/auth.service.ts";
+import { ApiError } from "../../exceptions/api.error.ts";
 
 const userPayload = {
   name: "test",
@@ -107,14 +108,68 @@ describe("auth", () => {
       const response = await supertest(app)
         .get("/auth/refresh")
         .set("Cookie", [`refreshToken=${refreshToken}`]);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toEqual(newTokens);
       expect(refreshAuthServiceMock).toHaveBeenCalledWith(refreshToken);
     });
+
+    test("should return token expired error", async () => {
+      const refreshToken = "existing-refresh-token";
+      
+      const refreshAuthServiceMock = jest
+        .spyOn(authService, "refreshTokens")
+        .mockRejectedValueOnce(ApiError.BadRequest('Token expired'))
+
+      const res = await supertest(app)
+        .get("/auth/refresh")
+        .set("Cookie", [`refreshToken=${refreshToken}`]);
+
+      expect(res.status).toBe(400);
+      expect(refreshAuthServiceMock).toHaveBeenCalledWith(refreshToken);
+    });
+
+    test("should return unauthorized error", async () => {
+      const response = await supertest(app).get("/auth/refresh");
+
+      expect(response.status).toBe(401);
+    });
   });
 
-  // describe("POST auth/logout", () => {
-  //   test("", async () => {});
-  // });
+  describe("POST auth/logout", () => {
+    test("should return 200", async () => {
+      const refreshToken = "existing-refresh-token";
+      const logoutAuthServiceMock = jest
+        .spyOn(authService, "logout")
+        .mockImplementationOnce(() => Promise.resolve());
+
+      const res = await supertest(app)
+        .get("/auth/logout")
+        .set("Cookie", [`refreshToken=${refreshToken}`]);
+
+      expect(res.status).toBe(200);
+      expect(logoutAuthServiceMock).toHaveBeenCalledWith(refreshToken);
+    });
+
+    test("should return unauthorized error", async () => {
+      const res = await supertest(app).get("/auth/logout");
+
+      expect(res.status).toBe(401);
+    });
+
+    test("should return validate error", async () => {
+      const refreshToken = "existing-refresh-token";
+      
+      const logoutAuthServiceMock = jest
+        .spyOn(authService, "logout")
+        .mockRejectedValueOnce(ApiError.BadRequest('Token expired'))
+
+      const res = await supertest(app)
+        .get("/auth/logout")
+        .set("Cookie", [`refreshToken=${refreshToken}`]);
+
+      expect(res.status).toBe(400);
+      expect(logoutAuthServiceMock).toHaveBeenCalledWith(refreshToken);
+    });
+  });
 });
