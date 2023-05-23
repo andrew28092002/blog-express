@@ -1,8 +1,6 @@
 import supertest from "supertest";
 import { startApp } from "../../app.ts";
 import { setupMongo } from "../../utils/testUtils.ts";
-import authController from "../../auth/auth.controller.ts";
-import userModel from "../../user/entities/user.model.ts";
 import authService from "../../auth/auth.service.ts";
 import { ApiError } from "../../exceptions/api.error.ts";
 
@@ -28,7 +26,7 @@ describe("auth", () => {
   });
 
   describe("POST auth/signup", () => {
-    test("should create new user andreturn tokens", async () => {
+    test("should create new user and return tokens", async () => {
       const res = await supertest(app).post("/auth/signup").send(userPayload);
 
       expect(res.status).toBe(200);
@@ -49,14 +47,27 @@ describe("auth", () => {
     });
 
     test("should throw error if user already exists", async () => {
+      const signUpAuthServiceMock = jest
+        .spyOn(authService, "signUp")
+        .mockRejectedValueOnce(ApiError.BadRequest("User already exist"));
+
       const res = await supertest(app).post("/auth/signup").send(userPayload);
 
       expect(res.status).toBe(400);
+      expect(signUpAuthServiceMock).toHaveBeenCalledWith(userPayload)
     });
   });
 
   describe("POST auth/singin", () => {
     test("should return tokens", async () => {
+      const tokens = {
+        accessToken: "accessToken",
+        refreshToken: "refreshToken",
+      };
+      const signInAuthServiceMock = jest
+        .spyOn(authService, "signIn")
+        .mockResolvedValueOnce(tokens);
+
       const res = await supertest(app).post("/auth/signin").send({
         email: userPayload.email,
         password: userPayload.password,
@@ -66,6 +77,10 @@ describe("auth", () => {
       expect(Object.keys(res.body)).toEqual(
         expect.arrayContaining(["accessToken", "refreshToken"])
       );
+      expect(signInAuthServiceMock).toHaveBeenCalledWith({
+        email: userPayload.email,
+        password: userPayload.password,
+      });
     });
 
     test("should return incorrect password error", async () => {
@@ -116,10 +131,10 @@ describe("auth", () => {
 
     test("should return token expired error", async () => {
       const refreshToken = "existing-refresh-token";
-      
+
       const refreshAuthServiceMock = jest
         .spyOn(authService, "refreshTokens")
-        .mockRejectedValueOnce(ApiError.BadRequest('Token expired'))
+        .mockRejectedValueOnce(ApiError.BadRequest("Token expired"));
 
       const res = await supertest(app)
         .get("/auth/refresh")
@@ -159,10 +174,10 @@ describe("auth", () => {
 
     test("should return validate error", async () => {
       const refreshToken = "existing-refresh-token";
-      
+
       const logoutAuthServiceMock = jest
         .spyOn(authService, "logout")
-        .mockRejectedValueOnce(ApiError.BadRequest('Token expired'))
+        .mockRejectedValueOnce(ApiError.BadRequest("Token expired"));
 
       const res = await supertest(app)
         .get("/auth/logout")
