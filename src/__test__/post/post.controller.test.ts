@@ -1,17 +1,20 @@
 import supertest from "supertest";
 import postModel from "../../post/entities/post.model.ts";
 import { startApp } from "../../app.ts";
-import { dropMongo, setupMongo } from "../../utils/testUtils.ts";
+import { setupMongo } from "../../utils/testUtils.ts";
 
 const app = startApp();
+let dropMongo: () => void;
 
 describe("Testing post controller", () => {
-  beforeAll(() => {
-    setupMongo();
+  beforeAll(async () => {
+    dropMongo = await setupMongo();
   });
 
-  beforeAll(() => {
-    dropMongo();
+  afterAll(() => {
+    if (dropMongo){
+      dropMongo();
+    }
   });
 
   describe("GET post/", () => {
@@ -22,7 +25,7 @@ describe("Testing post controller", () => {
       expect(Object.keys(res.body)).toEqual(
         expect.arrayContaining(["posts", "currentPage", "countPages"])
       );
-    }, 50000);
+    });
   });
 
   describe("GET post/{id}", () => {
@@ -40,7 +43,7 @@ describe("Testing post controller", () => {
 
       expect(res.status).toBe(200);
       expect(res.body.post).toHaveProperty("_id");
-    }, 50000);
+    });
   });
 
   //   describe("DELETE post/{id}", () => {

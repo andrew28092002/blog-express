@@ -1,17 +1,20 @@
 import supertest from "supertest";
 import userModel from "../../user/entities/user.model.ts";
 import { startApp } from "../../app.ts";
-import { dropMongo, setupMongo } from "../../utils/testUtils.ts";
+import { setupMongo } from "../../utils/testUtils.ts";
 
 const app = startApp()
+let dropMongo: () => void
 
 describe("Testing user controller", () => {
-  beforeAll(() => {
-    setupMongo()
+  beforeAll(async () => {
+    const dropMongo = await setupMongo()
   })
 
   beforeAll(() => {
-    dropMongo()
+    if (dropMongo){
+      dropMongo()
+    }
   })
 
   describe("GET user/", () => {

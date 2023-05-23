@@ -1,19 +1,22 @@
-
 import { Error } from "mongoose";
 import userModel from "../../user/entities/user.model.ts";
-import { dropCollections, dropMongo, setupMongo } from "../../utils/testUtils.ts";
+import { setupMongo } from "../../utils/testUtils.ts";
+
+let dropMongo: () => void;
 
 describe("Testing user model", () => {
   beforeAll(async () => {
-    setupMongo();
+    dropMongo = await setupMongo();
   });
 
-  afterEach(() => {
-    dropCollections();
+  afterEach(async () => {
+    await userModel.deleteMany();
   });
 
   afterAll(async () => {
-    dropMongo();
+    if (dropMongo) {
+      dropMongo();
+    }
   });
 
   test("should create a new user", async () => {
@@ -32,16 +35,19 @@ describe("Testing user model", () => {
     try {
       await userModel.create({});
     } catch (e) {
-      expect(e).toBeInstanceOf(Error.ValidationError)
+      expect(e).toBeInstanceOf(Error.ValidationError);
     }
-
   });
 
   test("should throw error with fields of wrong type", async () => {
     try {
-      await userModel.create({ name: 324234, email: "andre@gmail.com", password: "sdjfsdf"});
+      await userModel.create({
+        name: 324234,
+        email: "andre@gmail.com",
+        password: "sdjfsdf",
+      });
     } catch (e) {
-      expect(e).toBeInstanceOf(Error.ValidationError)
+      expect(e).toBeInstanceOf(Error.ValidationError);
     }
   });
 });

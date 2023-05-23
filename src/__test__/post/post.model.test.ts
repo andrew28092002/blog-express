@@ -1,19 +1,24 @@
 
 import { Error } from "mongoose";
 import postModel from "../../post/entities/post.model.ts";
-import { dropCollections, dropMongo, setupMongo } from "../../utils/testUtils.ts";
+import { setupMongo } from "../../utils/testUtils.ts";
+import userModel from "../../user/entities/user.model.ts";
+
+let dropMongo: () => void;
 
 describe("Testing user model", () => {
   beforeAll(async () => {
-    setupMongo();
+    dropMongo = await setupMongo();
   });
 
-  afterEach(() => {
-    dropCollections();
+  afterEach(async () => {
+    await userModel.deleteMany();
   });
 
   afterAll(async () => {
-    dropMongo();
+    if (dropMongo) {
+      dropMongo();
+    }
   });
 
   test("should create a new user", async () => {
